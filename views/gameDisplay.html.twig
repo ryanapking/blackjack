@@ -15,7 +15,6 @@
                             <img src={{ card.img }} width='20%'>
                         {% endfor %}
                     </p>
-                    <p>Player score: {{ game.player.score }}</p>
                 </div>
                 <div class='col col-sm-6'>
                     <h4>Dealer:</h4>
@@ -24,12 +23,9 @@
                             <img src={{ card.img }} width='20%'>
                         {% endfor %}
                     </p>
-                    <p>Dealer score: {{ game.dealer.score }}</p>
                 </div>
-
-
-
             </div>
+            <hr>
             <div class='row'>
                 <div class='col-sm-6'>
                     {% if game.player.bust == true or game.dealer.stand == true or game.dealer.bust == true %}
@@ -47,13 +43,13 @@
                             Draw at {{ game.player.score }}
                         {% endif %}
                     {% else %}
+                        <h4>On the line: ${{ game.bet }}.00</h4>
                         <div class='handActive'>
                             <form method='post' action='/postChoice'>
                                 <button type='submit' class='btn' name='playerChoice' value='hit'>Hit</button>
                                 <button type='submit' class='btn' name='playerChoice' value='stand'>Stand</button>
                             </form>
                         </div>
-                        <h4>On the line: ${{ game.bet }}.00</h4>
                     {% endif %}
                 </div>
 
