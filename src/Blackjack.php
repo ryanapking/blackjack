@@ -1,15 +1,54 @@
 <?php
     class Blackjack
     {
-        private $deck;
-        private $player;
-        private $dealer;
+        public $deck;
+        public $player;
+        public $dealer;
 
         function __construct()
         {
             $this->deck = new Deck();
             $this->player = new Hand("player");
             $this->dealer = new Hand("dealer");
+            $this->initialDeal();
+        }
+
+        function initialDeal()
+        {
+            $this->player->getCard($this->deck->pullCard());
+            $this->dealer->getCard($this->deck->pullCard());
+            $this->dealer->cards[0]->img = '/img/back.jpg';
+            $this->player->getCard($this->deck->pullCard());
+            $this->dealer->getCard($this->deck->pullCard());
+            $this->player->calculateScore();
+            $this->dealer->calculateScore();
+        }
+
+        function processTurn()
+        {
+            if (!$this->player->stand && !$this->player->bust) {
+                $this->player->getCard($this->deck->pullCard());
+                $this->player->calculateScore();
+            } else {
+                $this->dealerLogic();
+            }
+            return;
+        }
+
+        function dealerLogic()
+        {
+            while ($this->dealer->score < 17) {
+                $this->dealer->getCard($this->deck->pullCard());
+                $this->dealer->calculateScore();
+            }
+            if (!$this->dealer->bust) {
+                $this->dealer->stand = true;
+            }
+        }
+
+        function getDeck()
+        {
+            return $this->deck;
         }
     }
 
@@ -21,7 +60,6 @@
         {
             $this->cards = array();
             $this->buildDeck();
-            $this->shuffle();
         }
 
         function buildDeck()
@@ -31,20 +69,23 @@
                     $rank = strval($j);
                     switch ($i) {
                         case 1:
-                            $suit .= "C";
+                            $suit = "clubs";
                             break;
                         case 2:
-                            $suit .= "S";
+                            $suit = "spades";
                             break;
                         case 3:
-                            $suit .= "H";
+                            $suit = "hearts";
                             break;
                         case 4:
-                            $suit .= "D";
+                            $suit = "diamonds";
                             break;
                     }
                     array_push($this->cards, new Card($rank, $suit));
                 }
+            }
+            for($i = 0; $i < 7; $i++) {
+                $this->shuffle();
             }
         }
 
@@ -55,7 +96,11 @@
 
         function pullCard()
         {
-            return array_pop($this->cards);
+            $card = array_pop($this->cards);
+            if (sizeof($this->cards) == 0) {
+                $this->buildDeck();
+            }
+            return $card;
         }
     }
 
@@ -64,10 +109,14 @@
         public $name;
         public $cards;
         public $score;
+        public $stand;
+        public $bust;
 
         function __construct($name)
         {
             $this->name = $name;
+            $this->stand = false;
+            $this->bust = false;
             $this->score = 0;
             $this->cards = array();
         }
@@ -83,6 +132,9 @@
             foreach ($this->cards as $card) {
                 $this->score += $card->blackjackValue;
             }
+            if ($this->score > 21) {
+                $this->bust = true;
+            }
         }
     }
 
@@ -90,12 +142,43 @@
     {
         public $suit;
         public $rank;
+        public $title;
         public $blackjackValue;
+        public $img;
 
         function __construct($rank, $suit)
         {
             $this->suit = $suit;
             $this->rank = $rank;
+            $this->getBlackjackValue();
+            $this->setTitle();
+            $this->setImage();
+        }
+
+        function setTitle()
+        {
+            switch ($this->rank) {
+                case 1:
+                    $this->title = 'ace';
+                    break;
+                case 11:
+                    $this->title = 'jack';
+                    break;
+                case 12:
+                    $this->title = 'queen';
+                    break;
+                case 13:
+                    $this->title = 'king';
+                    break;
+                default:
+                    $this->title = strval($this->rank);
+            }
+        }
+
+        function setImage()
+        {
+            $this->img = '/img/' . $this->title . '_of_' . $this->suit . '.png';
+            // $this->img = '/img/black_joker.png';
         }
 
         function getBlackjackValue()
@@ -109,5 +192,4 @@
             }
         }
     }
-
  ?>

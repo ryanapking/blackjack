@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <title>Blackjack</title>
+    </head>
+    <body>
+        <div class='container'>
+            <h1>Blackjack</h1>
+            <div class='row'>
+                <div class='col col-sm-6'>
+                    <h4>Player:</h4>
+                    <p>
+                        {% for card in game.player.cards %}
+                            <img src={{ card.img }} width='20%'>
+                        {% endfor %}
+                    </p>
+                    <p>Player score: {{ game.player.score }}</p>
+                    <form method='post' action='/postChoice'>
+                        <button type='submit' class='btn' name='playerChoice' value='hit'>Hit</button>
+                        <button type='submit' class='btn' name='playerChoice' value='stand'>Stand</button>
+                        <button type='submit' class='btn' name='playerChoice' value='new'>Start new game</button>
+                    </form>
+                </div>
+                <div class='col col-sm-6'>
+                    <h4>Dealer:</h4>
+                    <p>
+                        {% for card in game.dealer.cards %}
+                            <img src={{ card.img }} width='20%'>
+                        {% endfor %}
+                    </p>
+                    <p>Dealer score: {{ game.dealer.score }}</p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

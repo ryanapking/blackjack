@@ -6,12 +6,12 @@
         function test_getDeck_deckLengthAndCardOutputStyle()
         {
             //Arrange
-            // $test_Blackjack = new Blackjack;
+            $test_Blackjack = new Blackjack;
             //Act
-            // $output = $test_Blackjack->getDeck();
+            $test_Blackjack->initialDeal();
+            $output = $test_Blackjack->getDeck();
             //Assert
-            // $this->assertEquals(sizeof($output), 52);
-            // $this->assertStringMatchesFormat('%d%c', $output[4]);
+            $this->assertEquals(48, sizeof($output->cards));
         }
 
     }
