@@ -4,12 +4,18 @@
         public $deck;
         public $player;
         public $dealer;
+        public $bank;
+        public $bet;
+        public $gameover;
 
         function __construct()
         {
             $this->deck = new Deck();
             $this->player = new Hand("player");
             $this->dealer = new Hand("dealer");
+            $this->bank = 100;
+            $this->bet = 5;
+            $this->gameover = false;
             $this->initialDeal();
         }
 
@@ -29,14 +35,43 @@
             if (!$this->player->stand && !$this->player->bust) {
                 $this->player->getCard($this->deck->pullCard());
                 $this->player->calculateScore();
+                if ($this->player->bust) {
+                    $this->bank -= $this->bet;
+                    if ($this->bank <= 0) {
+                        $this->gameover = true;
+                    }
+                    return;
+                }
             } else {
                 $this->dealerLogic();
+                if (!$this->player->bust && $this->dealer->bust ||
+                    !$this->player->bust && $this->player->score > $this->dealer->score) {
+                    $this->bank += $this->bet;
+                } elseif ($this->player->bust ||
+                            !$this->dealer->bust && $this->dealer->score > $this->player->score) {
+                    $this->bank -= $this->bet;
+                    if ($this->bank <= 0) {
+                        $this->gameover = true;
+                    }
+                }
             }
             return;
         }
 
+        function newHand()
+        {
+            $this->player->cards = array();
+            $this->dealer->cards = array();
+            $this->player->stand = false;
+            $this->player->bust = false;
+            $this->dealer->stand = false;
+            $this->dealer->bust = false;
+            $this->initialDeal();
+        }
+
         function dealerLogic()
         {
+            $this->dealer->cards[0]->setImage();
             while ($this->dealer->score < 17) {
                 $this->dealer->getCard($this->deck->pullCard());
                 $this->dealer->calculateScore();
@@ -102,6 +137,11 @@
             }
             return $card;
         }
+
+        function getSize()
+        {
+            return sizeof($this->cards);
+        }
     }
 
     class Hand
@@ -133,6 +173,13 @@
                 $this->score += $card->blackjackValue;
             }
             if ($this->score > 21) {
+                for ($i = 0; $i <= sizeof($this->cards); $i++) {
+                    if ($this->cards[$i]->blackjackValue == 11) {
+                        $this->cards[$i]->blackjackValue = 1;
+                        $this->calculateScore();
+                        return;
+                    }
+                }
                 $this->bust = true;
             }
         }

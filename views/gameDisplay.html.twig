@@ -16,11 +16,6 @@
                         {% endfor %}
                     </p>
                     <p>Player score: {{ game.player.score }}</p>
-                    <form method='post' action='/postChoice'>
-                        <button type='submit' class='btn' name='playerChoice' value='hit'>Hit</button>
-                        <button type='submit' class='btn' name='playerChoice' value='stand'>Stand</button>
-                        <button type='submit' class='btn' name='playerChoice' value='new'>Start new game</button>
-                    </form>
                 </div>
                 <div class='col col-sm-6'>
                     <h4>Dealer:</h4>
@@ -30,6 +25,55 @@
                         {% endfor %}
                     </p>
                     <p>Dealer score: {{ game.dealer.score }}</p>
+                </div>
+
+
+
+            </div>
+            <div class='row'>
+                <div class='col-sm-6'>
+                    {% if game.player.bust == true or game.dealer.stand == true or game.dealer.bust == true %}
+                        {% if game.player.bust and not game.dealer.bust %}
+                            You went bust, the dealer won
+                        {% elseif game.dealer.bust and not game.player.bust %}
+                            The dealer went bust, you won
+                        {% elseif game.dealer.bust and game.player.bust %}
+                            Draw, you both went bust
+                        {% elseif game.dealer.score > game.player.score %}
+                            The dealer won with {{ game.dealer.score }}
+                        {% elseif game.player.score > game.dealer.score %}
+                            You won with {{ game.player.score }}
+                        {% elseif game.player.score == game.dealer.score %}
+                            Draw at {{ game.player.score }}
+                        {% endif %}
+                    {% else %}
+                        <div class='handActive'>
+                            <form method='post' action='/postChoice'>
+                                <button type='submit' class='btn' name='playerChoice' value='hit'>Hit</button>
+                                <button type='submit' class='btn' name='playerChoice' value='stand'>Stand</button>
+                            </form>
+                        </div>
+                        <h4>On the line: ${{ game.bet }}.00</h4>
+                    {% endif %}
+                </div>
+
+                <div class='col-sm-6 pull-right'>
+                    <h4>Money: ${{ game.bank }}.00</h4>
+                    {% if game.gameover %}
+                        <h4>Game over!</h4>
+                        <form method='post' action='newgame'>
+                            <button type='submit' class='btn'>Start new game</button>
+                        </form>
+                        <br>
+                    {% elseif game.player.bust == true or game.dealer.stand == true or game.dealer.bust == true %}
+                        <form method='post' action='/postHand' class='form-inline'>
+                            <div class='form-group'>
+                                <label for 'betInput'>Your bet: $</label>
+                                <input type='number' value='5' min='0' max={{ game.bank }} name='playerBet' id='betInput' class='form-control'>
+                                <button type='submit' class='btn' value='new'>Deal new hand</button>
+                            </div>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -5,6 +5,7 @@
 
     $app = new Silex\Application();
     $app->register(new Silex\Provider\TwigServiceProvider(), array('twig.path' => __DIR__.'/../views'));
+    $app['debug'] = true;
 
     session_start();
     if (empty($_SESSION['game'])) {
@@ -21,9 +22,18 @@
         } elseif ($_POST['playerChoice'] == 'stand') {
             $_SESSION['game']->player->stand = true;
             $_SESSION['game']->processTurn();
-        } elseif ($_POST['playerChoice'] == 'new') {
-            $_SESSION['game'] = new Blackjack();
         }
+        return $app->redirect('/');
+    });
+
+    $app->post('/postHand', function() use ($app) {
+        $_SESSION['game']->bet = $_POST['playerBet'];
+        $_SESSION['game']->newHand();
+        return $app->redirect('/');
+    });
+
+    $app->post('/newgame', function() use ($app) {
+        $_SESSION['game'] = new Blackjack();
         return $app->redirect('/');
     });
 
